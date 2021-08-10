@@ -77,8 +77,8 @@ class CharacterWriter:
                   }
   
   def generate_default_context(self, char_width, char_height):
-    pixel_width = int(char_width * (self.CHAR_WIDTH + 2 * self.XPAD))
-    pixel_height = int(char_height * (self.CHAR_HEIGHT + 2 * self.YPAD))
+    pixel_width = int(char_width * (self.CHAR_WIDTH + self.XPAD))
+    pixel_height = int(char_height * (self.CHAR_HEIGHT + self.YPAD) + 2 * self.LINE_WIDTH)
     self.surface = cairo.ImageSurface(cairo.FORMAT_ARGB32, pixel_width, pixel_height)
     ctx = cairo.Context(self.surface)
 
@@ -519,4 +519,4 @@ def debug_print():
   
 
 if __name__ == "__main__":
-  debug_print() if True else main()
+  debug_print() if False else main()
