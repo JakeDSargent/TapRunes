@@ -47,12 +47,38 @@ class CharacterWriter:
                   "X": self.X,
                   "Y": self.Y,
                   "Z": self.Z,
-                  " ": self.advance_cursor,
+                  " ": lambda: "draw nothing",
+                  "AA": self.AA,
+                  "BB": self.BB,
+                  "CC": self.CC,
+                  "DD": self.DD,
+                  "EE": self.EE,
+                  "FF": self.FF,
+                  "GG": self.GG,
+                  "HH": self.HH,
+                  "II": self.II,
+                  "JJ": self.JJ,
+                  "KK": self.KK,
+                  "LL": self.LL,
+                  "MM": self.MM,
+                  "NN": self.NN,
+                  "OO": self.OO,
+                  "PP": self.PP,
+                  "QQ": self.QQ,
+                  "RR": self.RR,
+                  "SS": self.SS,
+                  "TT": self.TT,
+                  "UU": self.UU,
+                  "VV": self.VV,
+                  "WW": self.WW,
+                  "XX": self.XX,
+                  "YY": self.YY,
+                  "ZZ": self.ZZ,
                   }
   
   def generate_default_context(self, char_width, char_height):
-    pixel_width = int(char_width * (self.CHAR_WIDTH + 2.5 * self.XPAD))
-    pixel_height = int(char_height * (self.CHAR_HEIGHT + 2.5 * self.YPAD))
+    pixel_width = int(char_width * (self.CHAR_WIDTH + 2 * self.XPAD))
+    pixel_height = int(char_height * (self.CHAR_HEIGHT + 2 * self.YPAD))
     self.surface = cairo.ImageSurface(cairo.FORMAT_ARGB32, pixel_width, pixel_height)
     ctx = cairo.Context(self.surface)
 
@@ -126,25 +152,21 @@ class CharacterWriter:
     self.ctx.line_to(self.rel_to_user_x(0.5), self.cursor_y)
     self.ctx.move_to(x, y)
 
-  def flag_left(self, end_y):
+  def flag(self, end_y, tip_x):
     x, y = self.ctx.get_current_point()
-    left_x = self.rel_to_user_x(-0.5)
+    tip_x = self.rel_to_user_x(tip_x)
     end_y = self.rel_to_user_y(end_y)
-    xdiff = x - left_x
+    xdiff = x - tip_x
     ydiff = y - end_y
     
     self.ctx.rel_line_to(-xdiff, -ydiff/2)
     self.ctx.rel_line_to(+xdiff, -ydiff/2)
 
-  def flag_right(self, end_y):
-    x, y = self.ctx.get_current_point()
-    right_x = self.rel_to_user_x(0.5)
-    end_y = self.rel_to_user_y(end_y)
-    xdiff = right_x - x
-    ydiff = y - end_y
-    
-    self.ctx.rel_line_to(+xdiff, -ydiff/2)
-    self.ctx.rel_line_to(-xdiff, -ydiff/2)
+  def flag_left(self, end_y):
+    self.flag(end_y, -0.5)
+
+  def flag_right(self, end_y, tip_x=0.5):
+    self.flag(end_y, 0.5)
 
   def cross(self, m, b, width):
     x, y = self.ctx.get_current_point()
@@ -292,7 +314,7 @@ class CharacterWriter:
     self.init_char()
     self.top_triangle()
     self.stroke()
-    self.arc(0, 1, 0.5, math.pi, 0)
+    self.arc(0, 0.8, 0.5, math.pi, 0)
     self.stroke()
 
   def Q(self):
@@ -352,7 +374,7 @@ class CharacterWriter:
     self.init_char()
     self.bottom_triangle()
     self.stroke()
-    self.arc(0, 0, 0.5, 0, -math.pi)
+    self.arc(0, 0.2, 0.5, 0, -math.pi)
     self.stroke()
 
   def Y(self):
@@ -370,6 +392,93 @@ class CharacterWriter:
     self.arc(0, 0.75, 0.25, 0, 2 * math.pi)
     self.stroke()
 
+  def AA(self):
+    self.init_char (-0.2, 0)
+    self.vert(1)
+    self.stroke() 
+    self.move_to(0.2, 0)
+    self.vert(1)
+    self.stroke() 
+
+  def BB(self):
+    self.init_char(-0.15, 0)
+    self.vert(0.65)
+    self.line_to(-0.5, 1)
+    self.stroke()
+    self.move_to(0.15, 0)
+    self.vert(0.65)
+    self.line_to(0.5, 1)
+    self.stroke() 
+
+  def CC(self):
+    self.init_char(0.4)
+    self.vert(1)
+    self.flag(0.5, -0.1)
+    self.stroke()
+    self.move_to(0, 0.5)
+    self.flag(1, -0.5)
+    self.stroke()
+
+  def DD(self):
+    self.init_char()
+    self.vert(1)
+    self.stroke()
+    self.cross(0.5, 0.85, 0.9)
+    self.stroke()
+    self.cross(0.5, 0.6, 0.9)
+    self.stroke()
+
+  def EE(self):
+    self.init_char()
+    self.vert(0.75)
+    self.stroke()
+    self.arc(0, 0.675, 0.325, 0, 2*math.pi)
+    self.stroke()
+  
+  def FF(self):
+    pass
+  def GG(self):
+      pass
+  def HH(self):
+      pass
+  def II(self):
+      pass
+  def JJ(self):
+      pass
+  def KK(self):
+      pass
+  def LL(self):
+      pass
+  def MM(self):
+      pass
+  def NN(self):
+      pass
+  def OO(self):
+      pass
+  def PP(self):
+      pass
+  def QQ(self):
+      pass
+  def RR(self):
+      pass
+  def SS(self):
+      pass
+  def TT(self):
+      pass
+  def UU(self):
+      pass
+  def VV(self):
+      pass
+  def WW(self):
+      pass
+  def XX(self):
+      pass
+  def YY(self):
+      pass
+  def ZZ(self):
+      pass
+
+
 def main():
   
   with open("input.txt", "r") as infile:
@@ -377,6 +486,12 @@ def main():
   line_lengths = [len(x) for x in lines]
 
   cw = CharacterWriter(1, max(line_lengths), len(lines))
+  # cw.AA()
+  # cw.runes[" "]()
+  # cw.BB()
+  # cw.runes[" "]()
+  # cw.CC()
+  # cw.newline()
 
   for line in lines:
     for char in line:
@@ -389,5 +504,19 @@ def main():
   
   cw.export_image(lines[0].strip("\n") + ".png")
 
+def debug_print():
+  dw = CharacterWriter(1, 1, 1)
+  cw = CharacterWriter(1, len(dw.runes)//4 + 1, 5)
+  count = 0
+  for key in cw.runes:
+    cw.runes[key]()
+    cw.advance_cursor()
+    count += 1
+    if (count % (len(dw.runes)//4) == 0):
+      cw.newline()
+
+  cw.export_image("debug_print.png")
+  
+
 if __name__ == "__main__":
-  main()
+  debug_print() if True else main()

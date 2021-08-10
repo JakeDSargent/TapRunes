@@ -1,1 +1,1 @@
-Type your text here then push Run
+Input Text in input.txt
