@@ -4,8 +4,8 @@ import math
 import cairo
 
 class CharacterWriter:
-  CHAR_WIDTH, CHAR_HEIGHT = 50, 80
-  LINE_WIDTH = 5
+  CHAR_WIDTH, CHAR_HEIGHT = 50, 70
+  LINE_WIDTH = CHAR_WIDTH // 10
   XPAD, YPAD = LINE_WIDTH *2, LINE_WIDTH *2
 
   def __init__(self, scale, char_width=1, char_height=1, ctx=None, surface=None):
@@ -20,6 +20,7 @@ class CharacterWriter:
     else:
       self.generate_default_context(char_width, char_height)
     self.ctx.set_line_width(self.LINE_WIDTH)
+    self.ctx.set_line_cap(cairo.LINE_CAP_ROUND)
 
     self.runes = {"A": self.A,
                   "B": self.B,
@@ -47,10 +48,11 @@ class CharacterWriter:
                   "X": self.X,
                   "Y": self.Y,
                   "Z": self.Z,
-                  " ": lambda: "draw nothing",
                   "AA": self.AA,
                   "BB": self.BB,
                   "CC": self.CC,
+                  "CK": self.CK,
+                  "KC": self.KC,
                   "DD": self.DD,
                   "EE": self.EE,
                   "FF": self.FF,
@@ -74,17 +76,43 @@ class CharacterWriter:
                   "XX": self.XX,
                   "YY": self.YY,
                   "ZZ": self.ZZ,
+                  "BF": self.BF,
+                  "CL": self.CL,
+                  "DQ": self.DQ,
+                  "EV": self.EV,
+                  "FB": self.FB,
+                  "HM": self.HM,
+                  "IR": self.IR,
+                  "JW": self.JW,
+                  "KL": self.KL,
+                  "LC": self.LC,
+                  "LK": self.LK,
+                  "MH": self.MH,
+                  "OS": self.OS,
+                  "PX": self.PX,
+                  "QD": self.QD,
+                  "RI": self.RI,
+                  "SO": self.SO,
+                  "UY": self.UY,
+                  "VE": self.VE,
+                  "WJ": self.WJ,
+                  "XP": self.XP,
+                  "YU": self.YU,
+                  "\n": self.newline,
+                  " ": self.draw_nothing 
                   }
   
   def generate_default_context(self, char_width, char_height):
-    pixel_width = int(char_width * (self.CHAR_WIDTH + self.XPAD))
+    pixel_width = int(char_width * (self.CHAR_WIDTH + self.XPAD)) + 2 * self.LINE_WIDTH
     pixel_height = int(char_height * (self.CHAR_HEIGHT + self.YPAD) + 2 * self.LINE_WIDTH)
     self.surface = cairo.ImageSurface(cairo.FORMAT_ARGB32, pixel_width, pixel_height)
     ctx = cairo.Context(self.surface)
 
     pat = cairo.LinearGradient(0.0, 0.0, 0.0, pixel_height)
-    pat.add_color_stop_rgba(1, 0.7, 0, 0, 0.5)  # First stop, 50% opacity
-    pat.add_color_stop_rgba(0, 0.9, 0.7, 0.2, 1)  # Last stop, 100% opacity
+    # add_color_stop_rbga(offset, % red, % green, % blue, % opacity)
+    pat.add_color_stop_rgba(1, 1, 0, 0, 1)  
+    pat.add_color_stop_rgba(0.5, 0, 1, 0, 1) 
+    pat.add_color_stop_rgba(0, 0, 0, 1, 1)  
 
     ctx.set_source(pat)
     self.ctx = ctx    
@@ -206,7 +234,7 @@ class CharacterWriter:
     self.v_to_top()
     self.cross(0, 0, 1)
 
-  def not_implemented(self):
+  def draw_nothing(self):
     pass
 
   def A(self):
@@ -268,9 +296,9 @@ class CharacterWriter:
     self.stroke()
 
   def J(self):
-    self.init_char(-0.5, 1)
-    self.curve_to(0, 0.7, 1, 0.35, 0, 0)
-    self.curve_to(-1, 0.35, 0, 0.65, 0.5, 1)
+    self.init_char(-0.5, 0)
+    self.curve_to(0, 0.3, 1, 0.65, 0, 1)
+    self.curve_to(-1, 0.65, 0, 0.3, 0.5, 0)
     self.stroke()
 
   def K(self):
@@ -365,9 +393,9 @@ class CharacterWriter:
     self.stroke()
 
   def W(self):
-    self.init_char(-0.5, 0)
-    self.curve_to(0, 0.3, 1, 0.65, 0, 1)
-    self.curve_to(-1, 0.65, 0, 0.3, 0.5, 0)
+    self.init_char(-0.5, 1)
+    self.curve_to(0, 0.7, 1, 0.35, 0, 0)
+    self.curve_to(-1, 0.35, 0, 0.65, 0.5, 1)
     self.stroke()
   
   def X(self):
@@ -419,6 +447,23 @@ class CharacterWriter:
     self.flag(1, -0.5)
     self.stroke()
 
+  def CK(self):
+    self.init_char()
+    self.vert(1)
+    self.flag(0.5, -0.5)
+    self.flag(1, 0.5)
+    self.stroke()
+
+  def KC(self):
+    self.init_char()
+    self.vert(1)
+    self.move_to(-0.5, 0.5)
+    self.flag(1, 0)
+    self.stroke()
+    self.move_to(0.5, 0.5)
+    self.flag(1, 0)
+    self.stroke()
+
   def DD(self):
     self.init_char()
     self.vert(1)
@@ -436,48 +481,434 @@ class CharacterWriter:
     self.stroke()
   
   def FF(self):
-    pass
-  def GG(self):
-      pass
-  def HH(self):
-      pass
-  def II(self):
-      pass
-  def JJ(self):
-      pass
-  def KK(self):
-      pass
-  def LL(self):
-      pass
-  def MM(self):
-      pass
-  def NN(self):
-      pass
-  def OO(self):
-      pass
-  def PP(self):
-      pass
-  def QQ(self):
-      pass
-  def RR(self):
-      pass
-  def SS(self):
-      pass
-  def TT(self):
-      pass
-  def UU(self):
-      pass
-  def VV(self):
-      pass
-  def WW(self):
-      pass
-  def XX(self):
-      pass
-  def YY(self):
-      pass
-  def ZZ(self):
-      pass
+    self.init_char(-0.5, 0)
+    self.line_to(-0.15, 0.35)
+    self.vert(0.65)
+    self.stroke()
+    self.move_to(0.5, 0)
+    self.line_to(0.15, 0.35)
+    self.vert(0.65)
+    self.stroke() 
 
+  def GG(self):
+    self.init_char(0, 0.5)
+    self.v_to_bottom()
+    self.v_to_top()
+    self.stroke()
+    self.move_to(0, 0)
+    self.vert(1)
+    self.stroke()
+
+  def HH(self):
+    self.init_char(0, 0.5)
+    self.v_to_top()
+    self.bottom_triangle()
+    self.stroke()
+    self.move_to(0, 0)
+    self.vert(1)
+    self.stroke() 
+
+  def II(self):
+    self.init_char(0, 0.5)
+    self.v_to_top()
+    self.vert(0.5)
+    self.stroke()
+    self.cross(0, 0.65, 0.65)
+    self.stroke()
+    self.cross(0, 0.85, 0.65)
+    self.stroke()
+
+  def JJ(self):
+    self.init_char(-0.5, 0)
+    self.curve_to(0, 0.3, 1, 0.65, 0, 1)
+    self.curve_to(-1, 0.65, 0, 0.3, 0.5, 0)
+    self.stroke()
+    self.arc(0, 0.65, 0.175, 0, 2*math.pi)
+    self.stroke()
+
+  def KK(self):
+    self.init_char(-0.4)
+    self.vert(1)
+    self.flag(0.5, 0.1)
+    self.stroke()
+    self.move_to(0, 0.5)
+    self.flag(1, 0.5)
+    self.stroke()
+
+  def LL(self):
+    self.init_char(-0.4)
+    self.vert(1)
+    self.move_to(-0.4, 0.5)
+    self.flag(0, 0.1)
+    self.stroke()
+    self.move_to(0, 0.5)
+    self.flag(0, 0.5)
+    self.stroke()
+
+  def MM(self):
+    self.init_char()
+    self.top_triangle()
+    self.stroke()
+    self.move_to(0, 0.5)
+    self.v_to_bottom()
+    self.stroke()
+    self.move_to(0, 0)
+    self.vert(1)
+    self.stroke()
+
+  def NN(self):
+    self.init_char()
+    self.vert(1)
+    self.flag_left(0.5)
+    self.flag_right(0)
+    self.move_to(0, 1)
+    self.flag_right(0.5)
+    self.flag_left(0)
+    self.stroke()
+
+  def OO(self):
+    self.init_char(-0.15, 0)
+    self.vert(1)
+    self.rel_move(0, -0.5)
+    self.flag_right(0)
+    self.stroke()
+    self.cross(0.25, 0.7, 0.75)
+    self.stroke()
+    self.cross(0.25, 0.9, 0.75)
+    self.stroke()
+    
+  def PP(self):
+    self.init_char()
+    self.top_triangle()
+    self.stroke()
+    self.arc(0, 0.6, 0.35, -2 * math.pi, 0)
+    self.stroke()
+
+  def QQ(self):
+    self.init_char()
+    self.vert(1)
+    self.stroke()
+    self.cross(-0.5, 0.15, 0.9)
+    self.stroke()
+    self.cross(-0.5, 0.4, 0.9)
+    self.stroke()
+
+  def RR(self):
+    self.init_char()
+    self.vert(0.5)
+    self.v_to_bottom()
+    self.stroke()
+    self.cross(0, 0.15, 0.65)
+    self.stroke()
+    self.cross(0, 0.35, 0.65)
+    self.stroke()
+
+  def SS(self):
+    self.init_char(-0.15, 0)
+    self.vert(1)
+    self.flag_right(0.5)
+    self.stroke()
+    self.cross(-0.25, 0.15, 0.75)
+    self.stroke()
+    self.cross(-0.25, 0.35, 0.75)
+    self.stroke()
+
+  def TT(self):
+    self.init_char(-0.10, 0)
+    self.vert(1)
+    self.stroke()
+    self.move_to(0.2, 0)
+    self.vert(1)
+    self.stroke()
+    self.cross(-0.5, 0.25, 1)
+    self.stroke()
+    self.cross(0.5, 0.75, 1)
+    self.stroke()
+
+  def UU(self):
+    self.init_char()
+    self.arc(0, 0.75, 0.5, math.pi, 0)
+    self.stroke()
+    self.move_to(-0.15, 0.1)
+    self.vert(0.4)
+    self.stroke()
+    self.move_to(0.15, 0.1)
+    self.vert(0.4)
+    self.stroke()
+
+  def VV(self):
+    self.init_char(0, 0.25)
+    self.vert(0.75)
+    self.stroke()
+    self.arc(0, 0.325, 0.325, 0, 2*math.pi)
+    self.stroke()
+
+  def WW(self):
+    self.init_char(-0.5, 1)
+    self.curve_to(0, 0.7, 1, 0.35, 0, 0)
+    self.curve_to(-1, 0.35, 0, 0.65, 0.5, 1)
+    self.stroke()
+    self.arc(0, 0.35, 0.175, 0, 2*math.pi)
+    self.stroke()
+
+  def XX(self):
+    self.init_char(0, 0.5)
+    self.bottom_triangle()
+    self.stroke()
+    self.arc(0, 0.4, 0.35, -2 * math.pi, 0)
+    self.stroke()
+
+  def YY(self):
+    self.init_char()
+    self.arc(0, 0.25, 0.5, 0, math.pi)
+    self.stroke()
+    self.move_to(-0.15, 0.5)
+    self.vert(0.4)
+    self.stroke()
+    self.move_to(0.15, 0.5)
+    self.vert(0.4)
+    self.stroke()
+
+  def ZZ(self):
+    self.init_char()
+    self.arc(0, 0.25, 0.25, 0, 2 * math.pi)
+    self.stroke()
+    self.arc(0, 0.75, 0.25, 0, 2 * math.pi)
+    self.stroke()
+    self.arc(-0.25, 0.5, 0.25, 0, 2 * math.pi)
+    self.stroke()
+    self.arc(0.25, 0.5, 0.25, 0, 2 * math.pi)
+    self.stroke()
+
+  def BF(self):      
+    self.init_char()
+    self.vert(0.25)
+    self.flag_left(0.75)
+    self.flag_right(0.25)
+    self.stroke()
+    self.move_to(0, 0.75)
+    self.vert(0.25)
+    self.stroke()
+
+  def CL(self):
+    self.init_char(0.2)
+    self.vert(1)
+    self.stroke() 
+    self.move_to(0.2, 0.75)
+    self.flag(0.25, -0.4)
+    self.stroke()
+
+  def DQ(self):
+    self.init_char()
+    self.vert(1)
+    self.stroke()
+    self.cross(0, 0.5, 0.75)
+    self.stroke()
+
+  def EV(self):
+    self.init_char()
+    self.vert(1)
+    self.stroke()
+    self.arc(0, 0.2, 0.3, 0, math.pi)
+    self.stroke()
+    self.arc(0, 0.8, 0.3, -math.pi, 0)
+
+  def FB(self):
+    self.init_char(0, 0.4)
+    self.v_to_top()
+    self.vert(.2) 
+    self.v_to_bottom()
+    self.stroke()
+
+  def HM(self):
+    self.init_char(0, 0.25)
+    self.v_to_top()
+    self.flag_right(0.75)
+    self.flag_left(0.25)
+    self.stroke()
+    self.move_to(0, 0.75)
+    self.v_to_bottom()
+    self.stroke()
+    self.cross(0, 0.5, 1)
+    self.stroke()
+
+  def IR(self):
+    self.init_char(0, 0.4)
+    self.v_to_top()
+    self.vert(.2) 
+    self.v_to_bottom()
+    self.stroke()
+    self.cross(0, 0.5, 0.6)
+    self.stroke()
+
+  def JW(self):
+    self.init_char(-0.5, 0)
+    self.curve_to(0, 0.3*0.75, 1, 0.65*0.75, 0, 1*0.75)
+    self.curve_to(-1, 0.65*0.75, 0, 0.3*0.75, 0.5, 0*0.75)
+    self.stroke()
+
+    self.move_to(-0.5, 1*0.75+0.25)
+    self.curve_to(0, 0.7*0.75+0.25, 1, 0.35*0.75+0.25, 0, 0*0.75+0.25)
+    self.curve_to(-1, 0.35*0.75+0.25, 0, 0.65*0.75+0.25, 0.5, 1)
+    self.stroke()
+
+  def KL(self):
+    self.init_char(-0.2)
+    self.vert(1)
+    self.stroke() 
+    self.move_to(-0.2, 0.75)
+    self.flag(0.25, 0.4)
+    self.stroke()
+
+  def LC(self):
+    self.init_char(0.2)
+    self.vert(1)
+    self.flag(0.65, -0.3)
+    self.move_to(0.2, 0.35)
+    self.flag(0, -0.3)
+    self.stroke()
+
+  def LK(self):
+    self.init_char(-0.2)
+    self.vert(1)
+    self.flag(0.65, 0.3)
+    self.move_to(-0.2, 0.35)
+    self.flag(0, 0.3)
+    self.stroke()
+
+  def MH(self):
+    self.init_char(0, 0.25)
+    self.v_to_top()
+    self.flag_right(0.75)
+    self.flag_left(0.25)
+    self.stroke()
+    self.move_to(0, 0.75)
+    self.v_to_bottom()
+    self.stroke()
+    self.cross(0, 0, 1)
+    self.stroke()
+    self.cross(0, 1, 1)
+    self.stroke()
+
+  def OS(self):
+    self.init_char(-0.1)
+    self.vert(1)
+    self.flag(0.65, 0.3)
+    self.move_to(-0.1, 0.35)
+    self.flag(0, 0.3)
+    self.stroke()
+    self.cross(0, 0.5, 0.75)
+    self.stroke()
+
+  def PX(self):
+    self.init_char(0, 0.5)
+    self.top_triangle()
+    self.bottom_triangle()
+    self.stroke()
+    self.arc(0, 0.5, 0.35, 0, 2*math.pi)
+
+  def QD(self):
+    self.init_char()
+    self.vert(1)
+    self.stroke()
+    self.cross(0, 0.25, 0.6)
+    self.stroke() 
+    self.cross(0, 0.75, 0.6)
+    self.stroke()
+
+  def RI(self):      
+    self.init_char()
+    self.vert(0.25)
+    self.flag_left(0.75)
+    self.flag_right(0.25)
+    self.stroke()
+    self.move_to(0, 0.75)
+    self.vert(0.25)
+    self.stroke() 
+    self.cross(0, 0.125, 0.6)
+    self.stroke()
+    self.cross(0, 0.875, 0.6)
+    self.stroke()
+
+  def SO(self):
+    self.init_char(-0.05)
+    self.vert(1)
+    self.stroke() 
+    self.move_to(-0.05, 0.75)
+    self.flag(0.25, 0.4)
+    self.stroke()
+    self.cross(-0.25, 0.125, 0.6)
+    self.stroke()
+    self.cross(0.25, 0.875, 0.6)
+    self.stroke()
+
+  def UY(self):
+    self.init_char() 
+    self.vert(0.3)
+    self.stroke() 
+    self.move_to(0, 0.7)
+    self.vert(0.3) 
+    self.arc(0, 0.5, 0.325, 0, 2 * math.pi)
+
+  def VE(self):
+    self.init_char(0, 0.25)
+    self.vert(0.5)
+    self.stroke()
+    self.arc(0, 0.25, 0.25, math.pi, 2 * math.pi)
+    self.arc(0, 0.75, 0.25, 0, math.pi)
+    self.stroke()
+
+  def WJ(self):
+    self.init_char(-0.5, 1/2)
+    self.curve_to(0, 0.7/2, 1, 0.35/2, 0, 0/2)
+    self.curve_to(-1, 0.35/2, 0, 0.65/2, 0.5, 1/2)
+    self.stroke()
+
+    self.init_char(-0.5, 0/2+0.5)
+    self.curve_to(0, 0.3/2+0.5, 1, 0.65/2+0.5, 0, 1/2+0.5)
+    self.curve_to(-1, 0.65/2+0.5, 0, 0.3/2+0.5, 0.5, 0/2+0.5)
+    self.stroke()
+
+  def XP(self):
+    self.init_char(0, 0.25)
+    self.flag_left(0.75)
+    self.flag_right(0.25)
+    self.cross(0, 0.5, 1)
+    self.move_to(-0.5, 0)
+    self.curve_to(-0.3, 0.5, 0.3, 0.5, 0.5, 0)
+    self.move_to(-0.5, 1)
+    self.curve_to(-0.3, 0.5, 0.3, 0.5, 0.5, 1)
+    self.stroke()
+
+  def YU(self):
+    self.init_char(0, 0.25)
+    self.vert(0.5)
+    self.move_to(-0.5, 0)
+    self.curve_to(-0.3, 0.5, 0.3, 0.5, 0.5, 0)
+    self.move_to(-0.5, 1)
+    self.curve_to(-0.3, 0.5, 0.3, 0.5, 0.5, 1)
+    self.stroke()
+
+  def write_rune(self, rune):
+    self.runes[rune]()
+    if rune != "\n":
+      self.advance_cursor()
+
+  def write_inscription(self, inscription):
+    for rune in inscription:
+      if rune in self.runes.keys():
+        self.write_rune(rune)
+
+  def parse_inscription(self, string):
+    inscription = []
+    for char in string:
+      char = char.upper()
+      if len(inscription) >= 1:
+        if inscription[-1] + char in self.runes.keys():
+          inscription[-1] += char
+          continue
+      inscription.append(char)
+    return inscription
 
 def main():
   
@@ -486,37 +917,30 @@ def main():
   line_lengths = [len(x) for x in lines]
 
   cw = CharacterWriter(1, max(line_lengths), len(lines))
-  # cw.AA()
-  # cw.runes[" "]()
-  # cw.BB()
-  # cw.runes[" "]()
-  # cw.CC()
-  # cw.newline()
 
   for line in lines:
-    for char in line:
-      rune_char = char.upper()
-      if (rune_char == "\n"):
-        cw.newline()
-      else:
-        cw.runes.setdefault(rune_char, lambda : cw.advance_cursor)()
-        cw.advance_cursor()
+    inscription = cw.parse_inscription(line)
+    cw.write_inscription(inscription)
   
   cw.export_image(lines[0].strip("\n") + ".png")
 
 def debug_print():
   dw = CharacterWriter(1, 1, 1)
-  cw = CharacterWriter(1, len(dw.runes)//4 + 1, 5)
+  rows = 5
+  width = len(dw.runes) // rows
+  height = rows if len(dw.runes) % rows == 0 else rows
+  cw = CharacterWriter(1, width, height)
   count = 0
   for key in cw.runes:
+    if (key == "A"): continue
     cw.runes[key]()
     cw.advance_cursor()
     count += 1
-    if (count % (len(dw.runes)//4) == 0):
+    if (count % width == 0):
       cw.newline()
 
   cw.export_image("debug_print.png")
   
 
 if __name__ == "__main__":
-  debug_print() if False else main()
+  main()
