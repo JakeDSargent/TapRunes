@@ -8,7 +8,11 @@
 - Your text will be translated to `output.png`
 
 ### To Use Locally
-The only dependencies for local users are python3, the python math library (should be included standard) and the pycairo library which can be installed with `pip3 install pycairo`. Instead of `press run`, after inputting your text type `python3 main.py` in your shell
+ - Type what you want to translate in `input.txt`
+ - run `python3 main.py`
+ - Your text will be translated to `output.png`
+
+The only dependencies for local users are python3, the python math library (should be included standard) and the pycairo library which can be installed with `pip3 install pycairo`.
 
 ### Example of Curser
 > This is mostly just a reminder for myself
