@@ -3,7 +3,6 @@
 import math
 import cairo
 
-
 class CharacterWriter:
 	CHAR_WIDTH, CHAR_HEIGHT = 50, 70
 	LINE_WIDTH = CHAR_WIDTH // 10
@@ -119,10 +118,8 @@ class CharacterWriter:
 		}
 
 	def generate_default_context(self, char_width, char_height):
-		pixel_width = int(char_width *
-		                  (self.x_scaled + self.XPAD)) + 2 * self.LINE_WIDTH
-		pixel_height = int(char_height * (self.y_scaled + self.YPAD) +
-		                   2 * self.LINE_WIDTH)
+		pixel_width = int(char_width * (self.x_scaled + self.XPAD) + 2 * self.LINE_WIDTH)
+		pixel_height = int(char_height * (self.y_scaled + self.YPAD) + 2 * self.LINE_WIDTH)
 		self.surface = cairo.ImageSurface(cairo.FORMAT_ARGB32, pixel_width,
 		                                  pixel_height)
 		ctx = cairo.Context(self.surface)

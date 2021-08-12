@@ -2,11 +2,11 @@
 
 from math import pi, sin, cos
 import cairo
-
+import character_writer as CW
 
 class SpellWriter:
   GLYPH_WIDTH, GLYPH_HEIGHT = 500, 500
-  LINE_WIDTH = GLYPH_WIDTH // 10
+  LINE_WIDTH = GLYPH_WIDTH // 50
   XPAD, YPAD = LINE_WIDTH * 2, LINE_WIDTH * 4
 
   def __init__(self,
@@ -28,13 +28,33 @@ class SpellWriter:
     else:
       self.generate_default_context()
 
+    self.big_r = .1
+    self.small_r = .08
+
+    self.coords = {
+      "LEVEL":    (0,0),
+      "C/R":      (0,0),
+      "CAST":     (0,0),
+      "DURATION": (0,0),
+      "TARGET":   (0,0),
+      "SCHOOL":   (0,0),
+      "DAMAGE":   (0,0),
+      "RANGE":    (0,0)
+    }
+    self.ctx.save()
+    self.writer_scale = scale / 1.5
+    self.writer = CW.CharacterWriter(scale / 1.5, ctx=self.ctx, surface=self.surface)
+    self.ctx.restore()
+
   def generate_default_context(self):
     pixel_width = int((self.x_scaled + self.XPAD * 2) + 2 * self.LINE_WIDTH)
-    pixel_height = int((self.y_scaled + self.YPAD) + 2 * self.LINE_WIDTH)
+    pixel_height = int((self.y_scaled + self.YPAD * 2) + 2 * self.LINE_WIDTH)
     self.surface = cairo.ImageSurface(cairo.FORMAT_ARGB32, pixel_width,
                                       pixel_height)
     ctx = cairo.Context(self.surface)
-
+    ctx.set_source_rgb(0, 0, 0)
+    ctx.rectangle(0, 0, pixel_width, pixel_height)
+    ctx.fill()
     pat = cairo.LinearGradient(0.0, 0.0, 0.0, pixel_height)
     # add_color_stop_rbga(offset, % red, % green, % blue, % opacity)
     pat.add_color_stop_rgba(1, 1, 0, 0, 1)
@@ -46,6 +66,7 @@ class SpellWriter:
 
     self.ctx.set_line_width(self.LINE_WIDTH)
     self.ctx.set_line_cap(cairo.LINE_CAP_ROUND)
+
 
   def export_image(self, filename="example.png"):
     self.surface.write_to_png(filename)  # Output to PNG
@@ -64,31 +85,12 @@ class SpellWriter:
   def rel_to_user_y(self, rel_y):
     return rel_y * self.y_scaled + self.cursor_y
 
-  def x_y_from_radius(self, angle, radius):
-    x = sin(angle) * radius
-    y = cos(angle) * radius
-    if (pi < angle < 2 * pi):
-      y *= -1
-    if (0.5 * pi < angle < 1.5 * pi):
-      x *= -1
+  def x_y_from_angle(self, angle, radius):
+    angle = angle % (2*pi)
+    x = cos(angle) * radius
+    y = sin(angle) * radius
 
     return x, y
-
-  def advance_cursor(self):
-    self.cursor_x += self.XPAD + self.x_scaled
-
-  def line_feed(self):
-    self.cursor_y += self.YPAD + self.y_scaled
-
-  def carriage_return(self):
-    self.cursor_x = self.x_home
-
-  def newline(self):
-    self.line_feed()
-    self.carriage_return()
-
-  def line_return(self):
-    self.cursor_y = self.y_home
 
   def place_cursor(self, x, y):
     self.x_home = x
@@ -97,19 +99,32 @@ class SpellWriter:
   def stroke(self):
     self.ctx.stroke()
 
+  def fill(self):
+    self.ctx.fill()
+
   def init_cursor(self, rel_x=0, rel_y=0):
     self.ctx.new_path()
     self.move_to(rel_x, rel_y)
 
-  def arc(self, rel_x, rel_y, rad, angle_1, angle_2):
+  def arc(self, rel_x, rel_y, rad, angle_1, angle_2, fill=False):
     self.ctx.save()
     self.ctx.new_sub_path()
     self.ctx.translate(self.cursor_x, self.cursor_y)
     self.ctx.scale(self.x_scaled, self.y_scaled)
     self.ctx.set_line_width(self.LINE_WIDTH / self.x_scaled * 0.75)
     self.ctx.arc(rel_x, rel_y, rad, angle_1, angle_2)
-    self.stroke()
+    if fill:
+      self.fill()
+    else:
+      self.stroke()
     self.ctx.restore()
+
+  def overwriting_arc(self, rel_x, rel_y, rad, angle_1, angle_2):
+    self.ctx.save()
+    self.ctx.set_source_rgb(0, 0, 0)
+    self.arc(rel_x, rel_y, rad, 0, 2*pi, fill=True)
+    self.ctx.restore()
+    self.arc(rel_x, rel_y, rad, 0, 2*pi) 
 
   def move_to(self, rel_x, rel_y):
     self.ctx.move_to(self.rel_to_user_x(rel_x), self.rel_to_user_y(rel_y))
@@ -132,12 +147,81 @@ class SpellWriter:
   def draw_nothing(self):
     pass
 
+  def find_key_coords(self, rad3, rad5):
+    inc3 = 2*pi/3
+    base3 = pi*3/2
+    
+    inc5 = 2*pi/5
+    base5 = pi/2 - 2*inc5
+    self.coords["LEVEL"]    = self.x_y_from_angle(base3 + inc3 * 0, rad3)
+    self.coords["C/R"]      = self.x_y_from_angle(base3 + inc3 * 1, rad3)
+    self.coords["CAST"]     = self.x_y_from_angle(base3 + inc3 * 2, rad3)
+    self.coords["DURATION"] = self.x_y_from_angle(base5 + inc5 * 0, rad5)
+    self.coords["TARGET"]   = self.x_y_from_angle(base5 + inc5 * 1, rad5)
+    self.coords["SCHOOL"]   = self.x_y_from_angle(base5 + inc5 * 2, rad5)
+    self.coords["DAMAGE"]   = self.x_y_from_angle(base5 + inc5 * 3, rad5)
+    self.coords["RANGE"]    = self.x_y_from_angle(base5 + inc5 * 4, rad5)
+
+  def draw_sigil_circles(self):
+    count = 0
+    for key in self.coords:
+      x, y = self.coords[key]
+      if count < 3:
+        self.overwriting_arc(x, y, self.big_r, 0, 2*pi)
+      else:
+        self.overwriting_arc(x, y, self.small_r, 0, 2*pi)
+      count += 1
+
+  def no_save(self):
+    self.init_cursor()
+    rad3, rad5 = .125, .4
+    self.find_key_coords(rad3, rad5)
+    keys = list(self.coords.keys())
+
+    self.arc(0, 0, rad5, 0, 2 * pi)
+    for i in range(5):
+      x1, y1 = self.coords[keys[(i%5)+3]]
+      x2, y2 = self.coords[keys[((i+1)%5)+3]]
+      self.line(x1, y1, x2, y2)
+      self.stroke()
+
+    self.arc(0, 0, rad3+self.big_r, 0, 2*pi)
+    self.draw_sigil_circles()
+    self.draw_sigil("LEVEL", ["2"])
+    self.draw_sigil("RANGE", ["60", "F"])
+    self.draw_sigil("DAMAGE", ["0", "D", "4"])
+    self.draw_sigil("C/R", ["ZZ", "XP", "93"])
+    
+  
+  def draw_sigil(self, key, sigils):
+    self.ctx.save() 
+    self.ctx.set_source_rgb(1, 0.7, 1)
+    x,y = self.coords[key]
+    scale_shift = 1 - (0.15 * (len(sigils) - 1))
+    if key in ["LEVEL", "C/R", "CAST"]:
+      scale_shift *= 1.35
+    self.writer.process_scale(scale_shift)
+    self.ctx.set_line_width(self.writer.LINE_WIDTH)
+    if len(sigils) > 1:
+      x_offset = (self.writer.x_scaled + self.writer.XPAD) / 2 * (len(sigils)-1)
+    else:
+      x_offset = 0
+    y_offset = self.writer.y_scaled / 2
+    self.writer.place_cursor(self.rel_to_user_x(x) - x_offset, self.rel_to_user_y(y) - y_offset)
+    for sigil in sigils:
+      if sigil.isnumeric():
+        self.writer.write_numeric_rune(sigil)
+      else:
+        self.writer.write_rune(sigil)
+    self.writer.process_scale(1 / scale_shift)
+    self.ctx.restore()
 
 def main():
 
-  cw = SpellWriter(1)
-  cw.init_cursor()
-  cw.arc(0, 0, 0.7, 0, 2 * pi)
+  cw = SpellWriter(2)
+  cw.no_save()
+  
+  
   cw.export_image("spell_card" + ".png")
 
 
