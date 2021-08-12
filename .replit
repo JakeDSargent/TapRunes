@@ -1,0 +1,2 @@
+run = "python3 spell_cards.py"
+language = "python3" # optional

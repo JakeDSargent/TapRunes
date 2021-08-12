@@ -1,17 +1,10 @@
-a b c d e  k
-f g h i j
-l m n o p 
-q r s t u
-v w x y z
+Ive been working recently on 
+drawing software to type up my 
+take on dwarvish runes and Im
+really proud of it
 
-aa bb cc dd ee  kk
-ff gg hh ii jj  ck 
-ll mm nn oo pp  kc
-qq rr ss tt uu
-vv ww xx yy zz 
+it does letters and numbers
+1234567890
 
-  bf cl dq ev  kl
-fb   hm ir jw  lk
-lc mh   os px
-qd ri so   uy
-ve wj xp yu  
+it says this message in the picture
+thank you for letting me 

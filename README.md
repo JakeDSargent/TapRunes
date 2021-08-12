@@ -3,7 +3,7 @@
    - The rune translator will match the placement of what you type so insert your own newlines as desired
 
 - Press Run **|>**
-- The first line of `input.txt` will be your `.png` output file name
+- Your text will be translated to `output.png`
 
 
 ### Example of Curser
