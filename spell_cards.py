@@ -55,7 +55,6 @@ class SigilWriter:
     self.writer_scale = scale / 1.5
     self.writer = CW.CharacterWriter(scale / 1.5, ctx=self.ctx, surface=self.surface)
     self.ctx.restore()
-    
 
   def generate_default_context(self):
     pixel_width = int((self.x_scaled + self.XPAD * 2) + 2 * self.LINE_WIDTH)
@@ -223,7 +222,6 @@ class SigilWriter:
     else:
       self.stroke()
     self.ctx.restore()
-
   def draw_sigil(self, key, sigils):
     self.ctx.save() 
     self.ctx.set_source_rgb(1, 0.7, 1)
