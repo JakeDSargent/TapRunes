@@ -332,7 +332,6 @@ class SigilWriter:
       self.stroke()
     self.ctx.restore()
 
-
   def draw_sigil(self, key, sigils):
     self.ctx.save() 
     self.ctx.set_source_rgb(1, 0.7, 1)
