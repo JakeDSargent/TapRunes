@@ -34,6 +34,7 @@ class SigilWriter:
       self.ctx = ctx
       self.surface = surface
       self.ctx.set_line_width(self.LINE_WIDTH)
+      self.ctx.set_line_join(cairo.LINE_JOIN_ROUND)
       self.ctx.set_line_cap(cairo.LINE_CAP_ROUND)
     else:
       self.generate_default_context()
@@ -55,7 +56,6 @@ class SigilWriter:
     self.writer_scale = scale / 1.5
     self.writer = CW.CharacterWriter(scale / 1.5, ctx=self.ctx, surface=self.surface)
     self.ctx.restore()
-    
 
   def generate_default_context(self):
     pixel_width = int((self.x_scaled + self.XPAD * 2) + 2 * self.LINE_WIDTH)
@@ -198,14 +198,100 @@ class SigilWriter:
       self.stroke()
 
     self.arc(0, 0, rad3+self.big_r, 0, 2*pi)
+
+    self.LINE_WIDTH /= 2
+    self.ctx.set_line_width(self.LINE_WIDTH)
+
     self.draw_sigil_circles()
     self.draw_sigil("LEVEL", ["2"])
     self.draw_sigil("RANGE", ["60", "F"])
     self.draw_sigil("DAMAGE", ["0", "D", "4"])
+    self.draw_sigil("CAST", ["**"])
+    self.draw_sigil("DURATION", ["*"])
     self.draw_CR_sigil(R="True")
+    self.draw_school_sigil("Necromancy")
+
+  def draw_school_sigil(self, school):
+    x, y = self.coords["SCHOOL"]
+    if school == "Conjuration":
+      self.arc(x, y+self.small_r/2, self.small_r/2, pi, 2*pi)
+      self.line(x, y - self.small_r/4, x, y-3*self.small_r/4)
+      self.line(x + self.small_r * 3/8, y - self.small_r/4, x + self.small_r * 5/8, y - self.small_r/2)
+      self.line(x - self.small_r * 3/8, y - self.small_r/4, x - self.small_r * 5/8, y - self.small_r/2)
+      self.stroke()
+    elif school == "Necromancy":
+      offset = self.small_r/8
+      self.arc(x, y - offset, 5*offset, 3*pi/4, 9*pi/4)
+      line_off_x, line_off_y = self.x_y_from_angle(3*pi/4, 5*offset)
+      self.move_to(x + line_off_x, y - offset + line_off_y)
+      self.line_to(x + line_off_x, y + 2*offset + line_off_y)
+      self.line_to(x - line_off_x, y + 2*offset + line_off_y)
+      self.line_to(x - line_off_x, y - offset + line_off_y)
+      self.line(x + line_off_x + offset, y + line_off_y + offset/2, x - line_off_x - offset, y + line_off_y + offset/2)
+      self.line(x, y + offset, x + offset/2, y + 2*offset)
+      self.line(x, y + offset, x - offset/2, y + 2*offset)
+      self.arc(x + line_off_x/2, y - offset, offset, 0, 2*pi)
+      self.arc(x - line_off_x/2, y - offset, offset, 0, 2*pi)
+      self.stroke()
+    elif school == "Evocation":
+      self.arc(x, y, self.small_r/8, 0, 2*pi)
+      self.line(x, y - self.small_r * 3/8, x, y-3*self.small_r/4)
+      self.line(x + self.small_r * 3/8, y - self.small_r/4, x + self.small_r * 5/8, y - self.small_r/2)
+      self.line(x - self.small_r * 3/8, y - self.small_r/4, x - self.small_r * 5/8, y - self.small_r/2)
+
+      self.line(x, y + self.small_r * 3/8, x, y + self.small_r * 3/4)
+      self.line(x + self.small_r * 3/8, y + self.small_r/4, x + self.small_r * 5/8, y + self.small_r/2)
+      self.line(x - self.small_r * 3/8, y + self.small_r/4, x - self.small_r * 5/8, y + self.small_r/2)
+      self.stroke()
+    elif school == "Abjuration":
+      vert_offset = self.small_r*2/3
+      horiz_offset = self.small_r/2
+      self.line(x + horiz_offset, y-vert_offset, x-horiz_offset, y-vert_offset)
+      self.line_to(x-horiz_offset, y+vert_offset/2)
+      self.line_to(x, y+vert_offset)
+      self.line_to(x + horiz_offset, y + vert_offset/2)
+      self.line_to(x + horiz_offset, y-vert_offset)
+      self.line(x, y-vert_offset, x, y+vert_offset)
+      self.line(x+horiz_offset, y-vert_offset/4, x, y)
+      self.line(x-horiz_offset, y-vert_offset/4, x, y)
+      self.stroke()
+    elif school == "Transmutation":
+      horiz_offset = self.small_r/3
+      self.arc(x - horiz_offset, y, self.small_r/2, pi/4, pi*7/4, fill=True)
+      self.arc(x + horiz_offset, y, self.small_r/2, pi*5/4, pi*11/4, fill=True)
+    elif school == "Divination":
+      self.arc(x, y-self.small_r/2, self.small_r/2, 0, pi)
+      self.line(x, y + self.small_r * 1/4, x, y + self.small_r * 3/4)
+      self.line(x + self.small_r * 3/8, y + self.small_r/4, x + self.small_r * 5/8, y + self.small_r/2)
+      self.line(x - self.small_r * 3/8, y + self.small_r/4, x - self.small_r * 5/8, y + self.small_r/2)
+      self.stroke()
+    elif school == "Enchantment":
+      pitch = 8
+      for i in range(1, pitch):
+        if (i % 2 == 1):
+          self.arc(x + self.small_r/(pitch), y, i * self.small_r/pitch, pi, 2*pi)
+        else:
+          self.arc(x, y, i*self.small_r/pitch, 0, pi)
+    elif school == "Illusion":
+      self.ctx.save()
+      eye_rad = self.small_r/3
+      vert_offset = self.small_r/6
+      self.arc(x, y, eye_rad, pi, 2*pi)
+      self.line(x-eye_rad, y, x-2*eye_rad, y)
+      self.line(x+eye_rad, y, x+2*eye_rad, y)
+      self.arc(x, y+vert_offset*2, eye_rad, 0, pi)
+      self.line(x-eye_rad, y+vert_offset*2, x-2*eye_rad, y+vert_offset*2)
+      self.line(x+eye_rad, y+vert_offset*2, x+2*eye_rad, y+vert_offset*2)
+      self.arc(x, y+vert_offset, eye_rad/2, 0, 2*pi)
+
+      self.line(x, y - eye_rad, x, y-3*self.small_r/4)
+      self.line(x + self.small_r * 3/8, y - self.small_r/4, x + self.small_r * 5/8, y - self.small_r/2)
+      self.line(x - self.small_r * 3/8, y - self.small_r/4, x - self.small_r * 5/8, y - self.small_r/2)
+      self.stroke()
     
   def draw_CR_sigil(self, C=False, R=False):
     self.ctx.save()
+    self.ctx.set_line_width(int(self.LINE_WIDTH // 10) | 1)
     x, y = self.coords["C/R"]
     self.ctx.new_sub_path()
     self.ctx.translate(self.cursor_x, self.cursor_y)
@@ -214,6 +300,7 @@ class SigilWriter:
     self.ctx.arc(x, y, self.big_r, -pi/2, pi/2)
     self.ctx.restore()
     self.ctx.save()
+    self.ctx.set_line_width(int(self.LINE_WIDTH // 10) | 1)
     r,g,b = random.choice(self.palette)
     self.ctx.set_source_rgb(r, g, b)
     offset = self.big_r/2
@@ -223,6 +310,28 @@ class SigilWriter:
     else:
       self.stroke()
     self.ctx.restore()
+
+    self.ctx.save()
+    self.ctx.set_line_width(int(self.LINE_WIDTH // 10) | 1)
+    self.ctx.new_sub_path()
+    self.ctx.translate(self.cursor_x, self.cursor_y)
+    self.ctx.scale(self.x_scaled, self.y_scaled)
+    self.ctx.set_line_width(self.LINE_WIDTH / self.x_scaled * 0.75)
+    self.ctx.arc(x, y, self.big_r, pi/2, 3*pi/2)
+    self.ctx.restore()
+    self.move_to(x, y+self.big_r)
+    self.ctx.save()
+    self.ctx.set_line_width(int(self.LINE_WIDTH // 10) | 1)
+    r,g,b = random.choice(self.palette)
+    self.ctx.set_source_rgb(r, g, b)
+    offset = self.big_r/2
+    self.curve_to(x + 2*offset, y + offset, x - 2*offset, y - offset, x, y - self.big_r)
+    if C:
+      self.fill()
+    else:
+      self.stroke()
+    self.ctx.restore()
+
 
   def draw_sigil(self, key, sigils):
     self.ctx.save() 
