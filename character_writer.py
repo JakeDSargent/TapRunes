@@ -5,7 +5,7 @@ import cairo
 
 
 class CharacterWriter:
-  CHAR_WIDTH, CHAR_HEIGHT = 50, 50
+  CHAR_WIDTH, CHAR_HEIGHT = 50, 80
   LINE_WIDTH = int(CHAR_WIDTH / 12)
   XPAD, YPAD = LINE_WIDTH * 2, LINE_WIDTH * 4
 
@@ -116,6 +116,7 @@ class CharacterWriter:
       "XP": self.XP,
       "YU": self.YU,
       "\n": self.newline,
+      "" : self.draw_nothing,
       " ": self.draw_nothing,
       "*": self.action,
       "**": self.bonus_action

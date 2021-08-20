@@ -14,6 +14,34 @@
 
 The only dependencies for local users are python3, the python math library (should be included standard) and the pycairo library which can be installed with `pip3 install pycairo`.
 
+## Spellcard definition
+put a spell card named `name.spl` in the `src` dir to have it processed. Each spell card should include:
+
+```
+LEVEL:
+
+SAVE:
+
+DAMAGE:
+DAMAGEDICE:
+
+RANGE:
+
+DURATION:
+
+CAST:
+
+TARGET:
+TARGETSHAPE:
+
+C/R: 
+
+SCHOOL:
+
+COMPONENTS:
+```
+
+
 ### Example of Curser
 > This is mostly just a reminder for myself
 The curser is positioned at the `+` below relative to the space given each character
