@@ -1,4 +1,12 @@
 [[package]]
+name = "colored"
+version = "1.4.2"
+description = "Simple library for color and formatting to terminal"
+category = "main"
+optional = false
+python-versions = "*"
+
+[[package]]
 name = "pycairo"
 version = "1.20.1"
 description = "Python interface for cairo"
@@ -9,9 +17,12 @@ python-versions = ">=3.6, <4"
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.8"
-content-hash = "8ed53564d2bc094c76202d3172c1cfb433192d5eaa0af1fbe0251ecddc5a0856"
+content-hash = "55389ce38664d5f524962b6331e8277151acd8ca7a5a0d6f4c2846ae40769884"
 
 [metadata.files]
+colored = [
+    {file = "colored-1.4.2.tar.gz", hash = "sha256:056fac09d9e39b34296e7618897ed1b8c274f98423770c2980d829fd670955ed"},
+]
 pycairo = [
     {file = "pycairo-1.20.1-cp310-cp310-win32.whl", hash = "sha256:736ffc618e851601e861a630293e5c910ef016b83b2d035a336f83a367bf56ab"},
     {file = "pycairo-1.20.1-cp310-cp310-win_amd64.whl", hash = "sha256:261c69850d4b2ec03346c9745bad2a835bb8124e4c6961b8ceac503d744eb3b3"},

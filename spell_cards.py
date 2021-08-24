@@ -51,7 +51,7 @@ class SigilWriter:
     self.coords = {
       "LEVEL":    (0,0),
       "C/R":      (0,0),
-      "CAST":     (0,0),
+      "CASTINGTIME":     (0,0),
       "DURATION": (0,0),
       "TARGET":   (0,0),
       "SCHOOL":   (0,0),
@@ -197,7 +197,7 @@ class SigilWriter:
     if not equidistant:
       self.coords["LEVEL"]    = self.x_y_from_angle(base3 + inc3 * 0, rad3)
       self.coords["C/R"]      = self.x_y_from_angle(base3 + inc3 * 1, rad3)
-      self.coords["CAST"]     = self.x_y_from_angle(base3 + inc3 * 2, rad3)
+      self.coords["CASTINGTIME"]     = self.x_y_from_angle(base3 + inc3 * 2, rad3)
       self.coords["DURATION"] = self.x_y_from_angle(base5 + inc5 * 0, rad5)
       self.coords["TARGET"]   = self.x_y_from_angle(base5 + inc5 * 1, rad5)
       self.coords["SCHOOL"]   = self.x_y_from_angle(base5 + inc5 * 2, rad5)
@@ -209,7 +209,7 @@ class SigilWriter:
       self.coords["TARGET"]   = self.x_y_from_angle(base8 + inc8 * 2, rad5)
       self.coords["C/R"]      = self.x_y_from_angle(base8 + inc8 * 3, rad3)
       self.coords["SCHOOL"]   = self.x_y_from_angle(base8 + inc8 * 4, rad5)
-      self.coords["CAST"]     = self.x_y_from_angle(base8 + inc8 * 5, rad3)
+      self.coords["CASTINGTIME"]     = self.x_y_from_angle(base8 + inc8 * 5, rad3)
       self.coords["DAMAGE"]   = self.x_y_from_angle(base8 + inc8 * 6, rad5)
       self.coords["RANGE"]    = self.x_y_from_angle(base8 + inc8 * 7, rad5)
 
@@ -495,10 +495,9 @@ class SigilWriter:
     self.ctx.restore()
   
   def write_name(self, name):
-    insc = self.writer.parse_inscription(name)
     x_pos = int(self.writer.x_scaled + self.writer.XPAD)
     self.writer.place_cursor(x_pos, 0)
-    self.draw_sigil("NAME", insc)
+    self.draw_sigil("NAME", name)
 
   def draw_shape(self, key, shape):
     x, y = self.coords[key]
@@ -579,35 +578,32 @@ class SigilWriter:
       x,y = self.coords["C/R"]
       self.arc(x,y,rad,0, 2*pi)
     if "V" in vsm:
-      x,y = self.coords["CAST"]
+      x,y = self.coords["CASTINGTIME"]
       self.arc(x,y,rad,0, 2*pi)
 
 
   def draw_sigil(self, key, sigils):
     name = key == "NAME"
-    self.ctx.save() 
+    self.ctx.save()    
+    insc = self.writer.parse_inscription(sigils.strip("\n"))
     self.ctx.set_source_rgb(249/255, 190/255, 25/255)
     if not name:
       x,y = self.coords[key]
-      scale_shift = 1 - (0.15 * (len(sigils) - 1))
-      if key in ["LEVEL", "C/R", "CAST"]:
+      scale_shift = 1 - (0.15 * (len(insc) - 1))
+      if key in ["LEVEL", "C/R", "CASTINGTIME"]:
         scale_shift *= self.big_r / self.small_r
     else:
       scale_shift=0.5
     self.writer.process_scale(scale_shift)
     self.ctx.set_line_width(self.writer.LINE_WIDTH)
-    if len(sigils) > 1:
-      x_offset = (self.writer.x_scaled + self.writer.XPAD) / 2 * (len(sigils)-1)
+    if len(insc) > 1:
+      x_offset = (self.writer.x_scaled + self.writer.XPAD) / 2 * (len(insc)-1)
     else:
       x_offset = 0
     y_offset = self.writer.y_scaled / 2
     if not name:
       self.writer.place_cursor(self.rel_to_user_x(x) - x_offset, self.rel_to_user_y(y) - y_offset)
-    for sigil in sigils:
-      if sigil.isnumeric():
-        self.writer.write_numeric_rune(sigil)
-      else:
-        self.writer.write_rune(sigil)
+    self.writer.write_inscription(insc)
     self.writer.process_scale(1 / scale_shift)
     self.ctx.restore()
 
@@ -637,6 +633,31 @@ class SigilWriter:
       if color:
         palette.append(color)
     self.palette = palette
+  
+  def draw_spell_from_dict(self, spell_dict):
+    if "PALETTE" in spell_dict:
+      self.load_palette(spell_dict["PALETTE"])
+    self.write_name(spell_dict["NAME"])
+    self.use_random_gradient()
+    self.draw_type[spell_dict["SAVE"]]()
+    self.LINE_WIDTH /= 2
+    self.ctx.set_line_width(self.LINE_WIDTH)
+    if "TARGETSHAPE" in spell_dict:
+      self.use_random_gradient(radial=False)
+      self.draw_shape("TARGET", spell_dict["TARGETSHAPE"])
+    if "DAMAGEDICE" in spell_dict:
+      self.use_random_gradient(radial=False)
+      self.draw_shape("DAMAGE", spell_dict["DAMAGEDICE"])
+    for key in ["LEVEL", "RANGE", "DAMAGE", "CASTINGTIME", "DURATION", "TARGET"]:
+      self.draw_sigil(key, spell_dict[key])
+    c = "C" in spell_dict["C/R"]
+    r = "R" in spell_dict["C/R"]
+    self.draw_CR_sigil(C=c, R=r)
+    self.use_random_gradient(radial=False)
+    self.draw_school_sigil(spell_dict["SCHOOL"])
+    
+    self.use_random_gradient()
+    self.draw_components(spell_dict["COMPONENTS"])
 
   def parse_dir(self, indir="src", outdir="out"):
     for filename in os.scandir(indir):
@@ -644,36 +665,15 @@ class SigilWriter:
         outname = filename.name.split('.')[0] + ".png"
         name = " ".join(filename.name.split('.')[0].split("_"))
         print(name)
+        spell_dict = {}
+        spell_dict["NAME"] = name
         with open(filename.path, "r") as infile:
           parser = csv.reader(infile, delimiter=":")
-          spell_dict = {}
           for row in parser:
             if len(row) == 2:
-              spell_dict[row[0]] = row[1].split(",")
-        if "PALETTE" in spell_dict:
-          self.load_palette(spell_dict["PALETTE"][0])
-        self.write_name(name)
-        self.use_random_gradient()
-        self.draw_type[spell_dict["SAVE"][0]]()
-        self.LINE_WIDTH /= 2
-        self.ctx.set_line_width(self.LINE_WIDTH)
-        if "TARGETSHAPE" in spell_dict:
-          self.use_random_gradient(radial=False)
-          self.draw_shape("TARGET", spell_dict["TARGETSHAPE"][0])
-        if "DAMAGEDICE" in spell_dict:
-          self.use_random_gradient(radial=False)
-          self.draw_shape("DAMAGE", spell_dict["DAMAGEDICE"][0])
-        for key in ["LEVEL", "RANGE", "DAMAGE", "CAST", "DURATION", "TARGET"]:
-          self.draw_sigil(key, spell_dict[key])
-        c = "C" in spell_dict["C/R"]
-        r = "R" in spell_dict["C/R"]
-        self.draw_CR_sigil(C=c, R=r)
-        self.use_random_gradient(radial=False)
-        self.draw_school_sigil(spell_dict["SCHOOL"][0])
-        
-        self.use_random_gradient()
-        self.draw_components(spell_dict["COMPONENTS"][0])
-        self.export_image(outdir + "/" +spell_dict["LEVEL"][0] + "_" + outname)
+              spell_dict[row[0]] = row[1]
+        self.draw_spell_from_dict(spell_dict)
+        self.export_image(outdir + "/" +spell_dict["LEVEL"] + "_" + outname)
         self.LINE_WIDTH *= 2
         self.ctx.set_line_width(self.LINE_WIDTH)
         self.generate_default_context()
@@ -689,7 +689,7 @@ def main():
   # scribe.draw_sigil("LEVEL", ["2"])
   # scribe.draw_sigil("RANGE", ["60"])
   # scribe.draw_sigil("DAMAGE", [" ","0"," "])
-  # scribe.draw_sigil("CAST", ["*"])
+  # scribe.draw_sigil("CASTINGTIME", ["*"])
   # scribe.draw_sigil("DURATION", ["1", "M"])
   # scribe.draw_CR_sigil(C="True")
   # scribe.draw_school_sigil("ENCHANTMENT")
