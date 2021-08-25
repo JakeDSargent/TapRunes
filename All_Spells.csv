@@ -1,5 +1,5 @@
 NAME                               ,LEVEL ,SCHOOL        ,RITUAL ,CASTINGTIME  ,COMPONENTS ,CONCENTRATION ,DAMAGE ,DAMAGEDICE ,DURATION ,TARGET ,TARGETSHAPE ,SAVE ,RANGE ,PALETTE
-Acid Splash                        ,0     ,CONJURATION   ,       ,*            ,VS         ,              ,1      ,D6         ,*        ,2      ,CREATURE    ,DEX  ,60    ,#FFFFFF
+Acid Splash                        ,0     ,CONJURATION   ,       ,*            ,VS         ,              ,1      ,D6         ,*        ,2      ,CREATURE    ,DEX  ,60    ,#FFFFFF#FF00FF
 Blade Ward                         ,0     ,ABJURATION    ,       ,*            ,VS         ,              ,       ,           ,         ,       ,            ,     ,      ,
 Booming Blade                      ,0     ,EVOCATION     ,       ,*            ,VM         ,              ,       ,           ,         ,       ,            ,     ,      ,
 Chill Touch                        ,0     ,NECROMANCY    ,       ,*            ,VS         ,              ,       ,           ,         ,       ,            ,     ,      ,
